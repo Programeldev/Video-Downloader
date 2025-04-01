@@ -1,0 +1,10 @@
+[Desktop Entry]
+Name=video-downloader
+Exec=video-downloader
+Icon=com.github.Programeldev.VideoDownloader
+Terminal=false
+Type=Application
+Categories=Utility;
+Keywords=GTK;
+StartupNotify=true
+DBusActivatable=true
