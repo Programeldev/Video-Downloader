@@ -33,6 +33,20 @@
                     "url" : "file:///home/wtk/Programowanie/Gnome Builder"
                 }
             ]
-        }
+        },
+		{
+		    "name": "python3-yt_dlp",
+		    "buildsystem": "simple",
+		    "build-commands": [
+		        "pip3 install --verbose --exists-action=i --no-index --find-links=\"file://${PWD}\" --prefix=${FLATPAK_DEST} \"yt_dlp\" --no-build-isolation"
+		    ],
+		    "sources": [
+		        {
+		            "type": "file",
+		            "url": "https://files.pythonhosted.org/packages/a8/bf/7b0affb8f163376309696cfd1c677818fa0969fbb9d88225087208799afe/yt_dlp-2025.3.31-py3-none-any.whl",
+		            "sha256": "8ecb3aa218a3bebe431119f513a8972b9b9d992edf67168c00ab92329a03baec"
+		        }
+		    ]
+		}
     ]
 }

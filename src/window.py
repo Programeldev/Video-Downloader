@@ -18,7 +18,8 @@
 # SPDX-License-Identifier: LGPL-3.0-or-later
 
 from gi.repository import Gtk
-# import yt_dlp
+# from downloader import extract_formats
+from .downloader import extract_formats
 
 
 @Gtk.Template(resource_path='/com/github/Programeldev/VideoDownloader/window.ui')
@@ -46,6 +47,7 @@ class VideoDownloaderWindow(Gtk.ApplicationWindow):
         if not url:
             return
 
-        spinner = Gtk.Spinner()
-        spinner.start()
-        self.formats_box.append(spinner)
+        progress = Gtk.ProgressBar()
+        self.formats_box.append(progress)
+
+        extract_formats('', progress)

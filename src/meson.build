@@ -30,6 +30,7 @@ video_downloader_sources = [
   '__init__.py',
   'main.py',
   'window.py',
+  'downloader.py',
 ]
 
 install_data(video_downloader_sources, install_dir: moduledir)
