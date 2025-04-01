@@ -18,6 +18,7 @@
 # SPDX-License-Identifier: LGPL-3.0-or-later
 
 from gi.repository import Gtk
+# import yt_dlp
 
 
 @Gtk.Template(resource_path='/com/github/Programeldev/VideoDownloader/window.ui')
@@ -29,13 +30,22 @@ class VideoDownloaderWindow(Gtk.ApplicationWindow):
     extract_info_button = Gtk.Template.Child()
     formats_box = Gtk.Template.Child()
 
+    no_image: Gtk.Picture
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
+        self.image.set_resource('/images/no-image.png')
+
         self.set_size_request(400, 350)
         self.extract_info_button.connect('clicked', self.extract_info)
-        # self.formats_box = 
+        # self.formats_box.set_size_request(340, 200)
 
     def extract_info(self, button):
-        pass
+        url = self.url_entry.get_buffer().get_text()
+        if not url:
+            return
+
+        spinner = Gtk.Spinner()
+        spinner.start()
+        self.formats_box.append(spinner)

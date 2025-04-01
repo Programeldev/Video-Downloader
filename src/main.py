@@ -56,8 +56,8 @@ class VideoDownloaderApplication(Gtk.Application):
                                 program_name='video-downloader',
                                 logo_icon_name='com.github.Programeldev.VideoDownloader',
                                 version='0.1.0',
-                                authors=['Unknown'],
-                                copyright='© 2025 Unknown')
+                                authors=['Programeldev'],
+                                copyright='Icons by icons8.com')
         # Translators: Replace "translator-credits" with your name/username, and optionally an email or URL.
         about.set_translator_credits(_('translator-credits'))
         about.present()

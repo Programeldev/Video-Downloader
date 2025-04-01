@@ -4,4 +4,8 @@
     <file preprocess="xml-stripblanks">window.ui</file>
     <file preprocess="xml-stripblanks">gtk/help-overlay.ui</file>
   </gresource>
+  <gresource prefix="/images/">
+	<file alias="no-image.png">../data/icons/icons8/no-image.png</file>
+	<file alias="no-image-white.png">../data/icons/icons8/no-image-white.png</file>
+  </gresource>
 </gresources>
