@@ -1,10 +1,12 @@
 import yt_dlp
-
-
-__set_fraction
+from multiprocessing import Process, Pipe
+from threading import Thread, Lock
 
 
 class Logger:
+    def debug(self, msg):
+        pass
+
     def info(self, msg):
         pass
 
@@ -15,27 +17,83 @@ class Logger:
         print(msg)
 
 
-def download_status_hook(info):
-    global __set_fraction
+class Downloader:
 
-    if info['status'] == 'downloading':
-        fraction = info['downloaded_bytes'] / info['total_bytes_estimate']
-        __set_fraction(fraction)
-    elif info['status'] == 'finished':
-        __set_fraction(1.0)
+    thread = Thread()
+    # process = Process()
+    terminate = False
+    # mutex = Lock()
+
+    def extract_formats(self, url: str, formats_extracted_hook):
+        if self.thread.is_alive():
+            print('killing thread and process')
+            self.terminate = True
+            self.thread.join()
+
+        print('running thread')
+        self.thread = Thread(
+            target=watching_process, args=[url,
+                                           self.terminate,
+                                           # self.process,
+                                           formats_extracted_hook]
+        )
+        self.thread.start()
 
 
-def extract_formats(url, progress_bar):
-    global __set_fraction
-    __set_fraction = progress_bar.set_fraction
+def watching_process(url: str,
+                     terminate: bool,
+                     # process: Process,
+                     formats_extracted_hook):
+    # if process.is_alive():
+        # process.kill()
 
-    url = 'https://youtu.be/K7JeTqXdH7I?si=5QWcs3OAMDKCKtHX'
 
-    yt_dlp_opts = {
-        'quiet': True,
-        'logger': Logger(),
-        'progress_hooks': [download_status_hook]
-    }
+    print('thread started')
+    pipe, child_pipe = Pipe()
+    process = Process(target=extract_formats_process, args=[url, child_pipe])
+    process.start()
+    print('process started')
 
-    with yt_dlp.YoutubleDL(yt_dlp_opts) as ydl:
-        ydl.extract_info(url)
+    while True:
+        if terminate is True:
+            print('terminating process')
+            pipe.close()
+            process.kill()
+            terminate = False
+            return
+        elif pipe.poll():
+            print('process success')
+            extracted_formats = pipe.recv()
+            pipe.close()
+            process.kill()
+            formats_extracted_hook(extracted_formats)
+            return
+    print('end thread')
+
+
+def extract_formats_process(url: str, pipe: Pipe):
+    # url = 'https://youtu.be/K7JeTqXdH7I?si=5QWcs3OAMDKCKtHX'
+    url = 'https://www.youtube.com/watch?v=lN2JuSx3vtY'
+
+    # yt_dlp_opts = {
+    #     'quiet': True,
+    #     'logger': Logger(),
+    #     # 'progress_hooks': [when_finished_hook]
+    # }
+    #
+    # with yt_dlp.YoutubeDL(yt_dlp_opts) as ydl:
+    #     ydl.extract_info(url, download=False)
+
+    pipe.send('data extracted')
+    pipe.close()
+    print('process end')
+
+# def when_finished_hook(info):
+#     global stop_spinner_wrapper
+#
+#     if info['status'] == 'downloading':
+#         print('downloading')
+#
+#     if info['status'] == 'finished':
+#         print('finish')
+#         stop_spinner_wrapper()
