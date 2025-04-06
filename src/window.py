@@ -54,7 +54,7 @@ class VideoDownloaderWindow(Gtk.ApplicationWindow):
 
         self.downloader.extract_formats(url, self.show_extracted_info)
 
-    def show_extracted_info(extracted_info):
+    def show_extracted_info(self, extracted_info):
         print(extracted_info)
     # def extract_info(self, button):
     #     url = self.url_entry.get_buffer().get_text()

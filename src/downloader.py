@@ -1,6 +1,10 @@
 import yt_dlp
 from multiprocessing import Process, Pipe
 from threading import Thread, Lock
+from time import sleep
+
+
+terminate = False
 
 
 class Logger:
@@ -21,19 +25,22 @@ class Downloader:
 
     thread = Thread()
     # process = Process()
-    terminate = False
+    # terminate = False
     # mutex = Lock()
 
     def extract_formats(self, url: str, formats_extracted_hook):
+        global terminate
+        print('t terminate: ', terminate)
         if self.thread.is_alive():
             print('killing thread and process')
-            self.terminate = True
+            terminate = True
             self.thread.join()
+            terminate = False
 
         print('running thread')
         self.thread = Thread(
             target=watching_process, args=[url,
-                                           self.terminate,
+                                           # self.terminate,
                                            # self.process,
                                            formats_extracted_hook]
         )
@@ -41,12 +48,13 @@ class Downloader:
 
 
 def watching_process(url: str,
-                     terminate: bool,
+                     # terminate: bool,
                      # process: Process,
                      formats_extracted_hook):
     # if process.is_alive():
         # process.kill()
 
+    global terminate
 
     print('thread started')
     pipe, child_pipe = Pipe()
@@ -58,16 +66,17 @@ def watching_process(url: str,
         if terminate is True:
             print('terminating process')
             pipe.close()
-            process.kill()
-            terminate = False
-            return
+            process.terminate()
+            process.join()
+            print('p terminate: ',terminate)
+            break
         elif pipe.poll():
             print('process success')
-            extracted_formats = pipe.recv()
+            extracted_formats = str(pipe.recv())
             pipe.close()
             process.kill()
             formats_extracted_hook(extracted_formats)
-            return
+            break
     print('end thread')
 
 
@@ -82,9 +91,10 @@ def extract_formats_process(url: str, pipe: Pipe):
     # }
     #
     # with yt_dlp.YoutubeDL(yt_dlp_opts) as ydl:
-    #     ydl.extract_info(url, download=False)
+        # ydl.extract_info(url, download=False)
 
-    pipe.send('data extracted')
+    sleep(5)
+    pipe.send('piped extracted')
     pipe.close()
     print('process end')
 
