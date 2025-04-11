@@ -4,7 +4,7 @@ from threading import Thread, Lock
 from time import sleep
 
 
-terminate = False
+# terminate = False
 
 
 class Logger:
@@ -24,60 +24,66 @@ class Logger:
 class Downloader:
 
     thread = Thread()
-    # process = Process()
-    # terminate = False
-    # mutex = Lock()
 
-    def extract_formats(self, url: str, formats_extracted_hook):
-        global terminate
-        print('t terminate: ', terminate)
+    def extract_formats(self, url: str, formats_extracted_callable):
         if self.thread.is_alive():
             print('killing thread and process')
-            terminate = True
-            self.thread.join()
-            terminate = False
+            self.thread.terminate()
 
         print('running thread')
-        self.thread = Thread(
-            target=watching_process, args=[url,
-                                           # self.terminate,
-                                           # self.process,
-                                           formats_extracted_hook]
+
+        self.thread = WatchingProcessThread(url, formats_extracted_callable)
+        # self.thread.start()
+        # self.thread = Thread(
+        #     target=watching_process, args=[url,
+        #                                    # self.terminate,
+        #                                    # self.process,
+        #                                    formats_extracted_hook]
+        # )
+        # self.thread.start()
+
+
+class WatchingProcessThread(Thread):
+    
+    __terminate = False
+    url: str
+    formats_extracted_callable = None
+
+    def __init__(self, url: str, formats_extracted_callable):
+        super().__init__()
+        self.url = url
+        self.formats_extracted_callable = formats_extracted_callable
+        self.start()
+
+    def run(self):
+        print('thread started')
+        pipe, p_pipe = Pipe()
+        process = Process(
+            target=extract_formats_process,
+            args=[self.url, p_pipe]
         )
-        self.thread.start()
+        process.start()
+        print('process started')
 
+        while True:
+            if self.__terminate is True:
+                print('terminating process')
+                pipe.close()
+                process.terminate()
+                process.join()
+                break
+            elif pipe.poll():
+                print('process success')
+                extracted_formats = str(pipe.recv())
+                pipe.close()
+                process.kill()
+                self.formats_extracted_callable(extracted_formats)
+                break
+        print('end thread')
 
-def watching_process(url: str,
-                     # terminate: bool,
-                     # process: Process,
-                     formats_extracted_hook):
-    # if process.is_alive():
-        # process.kill()
-
-    global terminate
-
-    print('thread started')
-    pipe, child_pipe = Pipe()
-    process = Process(target=extract_formats_process, args=[url, child_pipe])
-    process.start()
-    print('process started')
-
-    while True:
-        if terminate is True:
-            print('terminating process')
-            pipe.close()
-            process.terminate()
-            process.join()
-            print('p terminate: ',terminate)
-            break
-        elif pipe.poll():
-            print('process success')
-            extracted_formats = str(pipe.recv())
-            pipe.close()
-            process.kill()
-            formats_extracted_hook(extracted_formats)
-            break
-    print('end thread')
+    def terminate(self):
+        self.__terminate = True
+        self.join()
 
 
 def extract_formats_process(url: str, pipe: Pipe):
@@ -86,24 +92,14 @@ def extract_formats_process(url: str, pipe: Pipe):
 
     # yt_dlp_opts = {
     #     'quiet': True,
-    #     'logger': Logger(),
+        # 'logger': Logger(),
     #     # 'progress_hooks': [when_finished_hook]
     # }
     #
     # with yt_dlp.YoutubeDL(yt_dlp_opts) as ydl:
-        # ydl.extract_info(url, download=False)
+    #     ydl.extract_info(url, download=False)
 
-    sleep(5)
-    pipe.send('piped extracted')
+    # sleep(5)
+    # pipe.send('piped extracted')
     pipe.close()
     print('process end')
-
-# def when_finished_hook(info):
-#     global stop_spinner_wrapper
-#
-#     if info['status'] == 'downloading':
-#         print('downloading')
-#
-#     if info['status'] == 'finished':
-#         print('finish')
-#         stop_spinner_wrapper()
