@@ -43,19 +43,23 @@ class VideoDownloaderWindow(Gtk.ApplicationWindow):
         super().__init__(**kwargs)
 
         self.image.set_resource('/images/no-image.png')
-
         self.set_size_request(400, 350)
         self.extract_info_button.connect('clicked', self.extract_info)
+        self.spinner.start()
 
     def extract_info(self, button):
         url = self.url_entry.get_buffer().get_text()
         if not url:
             return
 
+        self.formats_box.append(self.spinner)
         self.downloader.extract_formats(url, self.show_extracted_info)
 
     def show_extracted_info(self, extracted_info):
+        self.formats_box.remove(self.spinner)
         print(extracted_info)
+        
+
     # def extract_info(self, button):
     #     url = self.url_entry.get_buffer().get_text()
     #     if not url:

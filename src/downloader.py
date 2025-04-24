@@ -44,7 +44,7 @@ class Downloader:
 
 
 class WatchingProcessThread(Thread):
-    
+
     __terminate = False
     url: str
     formats_extracted_callable = None
@@ -99,7 +99,7 @@ def extract_formats_process(url: str, pipe: Pipe):
     # with yt_dlp.YoutubeDL(yt_dlp_opts) as ydl:
     #     ydl.extract_info(url, download=False)
 
-    # sleep(5)
-    # pipe.send('piped extracted')
+    sleep(5)
+    pipe.send('piped extracted')
     pipe.close()
     print('process end')
