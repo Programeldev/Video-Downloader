@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<interface>
+	<template class="FormatsTable" parent="GtkColumnView">
+		<property name="model">
+			<object class="GtkSingleSelection">
+				<property name="model">
+					<object class="GtkStringList">
+						<items>
+							<item>1, owoc, jabko</item>
+							<item>2, warzywo, ziemniok</item>
+							<item>3, wegle, cukier</item>
+						</items>
+					</object>
+				</property>
+			</object>
+		</property>
+		<child>
+			<object class="GtkColumnViewColumnt">
+				<property name="column 1"/>
+				<child>
+					<object class="GtkLabel"/>
+				</child>
+			</object>
+		</child>
+		<child>
+			<object class="GtkColumnViewColumnt">
+				<property name="column 2"/>
+				<child>
+					<object class="GtkLabel"/>
+				</child>
+			</object>
+		</child>
+		<child>
+			<object class="GtkColumnViewColumnt">
+				<property name="column 3"/>
+				<child>
+					<object class="GtkLabel"/>
+				</child>
+			</object>
+		</child>
+	</template>
+</interface>
